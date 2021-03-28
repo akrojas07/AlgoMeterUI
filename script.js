@@ -6,6 +6,9 @@ class User
         this.questions = questions;
     }
 }
+
+const { v4: uniqueId } = require('uuid');
+
 /*  User methods    */
 //create new instance of user class
 let user = new User();
@@ -16,20 +19,27 @@ let user = new User();
 /// returns userId
 async function createNewUser()
 {
-    const response = await fetch('http://localhost:61842/algometer/user/add',
-    {
-         method: 'POST',
-         mode: 'no-cors',
-         headers: 
-         {
-            'Content-Type': 'application/json'
-         },
-         body: JSON.stringify()
-    });
-
     // set user info 
-    var userObj = response.json();
-    user.id = userObj['id'];
+    user.id = uniqueId;
+    console.log(user.id);
+
+    try 
+    {
+        const response = await fetch('http://localhost:61842/algometer/user/add',
+        {
+             method: 'POST',
+             mode: 'no-cors',
+             headers: 
+             {
+                'Content-Type': 'application/json'
+             },
+             body: JSON.stringify(user)
+        }).catch(error => console.log(error));
+    } 
+    catch (error) 
+    {
+        console.log(error);
+    }
 
 }
 
@@ -37,37 +47,52 @@ async function createNewUser()
 /// returns list of questions already seen by the user
 async function updateExistingUser()
 {
-    const response = await fetch('http://localhost:61842/algometer/user/update',
+    try 
     {
-         method: 'PUT',
-         mode: 'no-cors',
-         headers: 
-         {
-            'Content-Type': 'application/json'
-         },
-         body: JSON.stringify(user)
-    });
-
-    var existingUserObj = response.json();
-
-    //update user question list info
-    user.questions = existingUserObj['questionids'];
+        const response = await fetch('http://localhost:61842/algometer/user/update',
+        {
+             method: 'PUT',
+             mode: 'no-cors',
+             headers: 
+             {
+                'Content-Type': 'application/json'
+             },
+             body: JSON.stringify(user)
+        }).catch(error => console.log(error));
+    
+        var existingUserObj = response.json();
+    
+        //update user question list info
+        user.questions = existingUserObj['questionids'];
+    } 
+    catch (error) 
+    {
+        console.log(error);   
+    }
 
 }
 
 ///method to delete user information once user's session has ended
 async function deleteUserInformation()
 {
-    const response = await fetch('http://localhost:61842/algometer/user/delete',
+    try 
     {
-         method: 'DELETE',
-         mode: 'cors',
-         headers: 
-         {
-            'Content-Type': 'application/json'
-         },
-         body: JSON.stringify(user)
-    });
+        const response = await fetch('http://localhost:61842/algometer/user/delete',
+        {
+             method: 'DELETE',
+             mode: 'cors',
+             headers: 
+             {
+                'Content-Type': 'application/json'
+             },
+             body: JSON.stringify(user.id)
+        });
+        
+    } 
+    catch (error) 
+    {
+        console.log(error);   
+    }
 }
 
 /*  Question methods */
@@ -77,15 +102,22 @@ let questionId = 0;
 //returns question object 
 async function retrieveQuestion()
 {
-    const response = await fetch('http://localhost:61842/algometer/question',
+    try
     {
-         method: 'GET',
-         mode: 'no-cors',
-         headers: 
-         {
-            'Accept': 'application/json'
-         }
-    });
+        const response = await fetch('http://localhost:61842/algometer/question',
+        {
+            method: 'GET',
+            mode: 'no-cors',
+            headers: 
+            {
+                'Accept': 'application/json'
+            }
+        });
+    }
+    catch(error)
+    {
+        console.log(error);
+    }
 
     var questionObj = response.json();
     document.getElementById('question').innerHTML = questionObj['question'];
@@ -101,10 +133,10 @@ async function retrieveQuestion()
 
 
 //detect if window is closing to delete user information
-window.addEventListener('beforeunload', function(e)
-{
-    deleteUserInformation();
-});
+// this.window.addEventListener('beforeunload', function(e)
+// {
+//     deleteUserInformation();
+// });
 
 //when session is initialized, create new user
 oninit: createNewUser()
