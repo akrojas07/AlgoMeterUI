@@ -44,7 +44,6 @@ async function updateExistingUser() {
 ///method to delete user information once user's session has ended
 async function deleteUserInformation() {
   try {
-    console.log('Im deleting');
     await fetch('http://localhost:61842/api/user',
       {
         method: 'DELETE',
@@ -52,22 +51,22 @@ async function deleteUserInformation() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(this.user.userId)
+        body: JSON.stringify(this.user)
       });
 
     localStorage.clear();
+    this.user = { questionIds : [], userId: undefined };
   } catch (error) {
     console.log(error);
   }
 }
 
 /*  Question methods */
-let questionId = 0;
-
 ///method to retrieve question information from server
 //returns question object
 async function retrieveQuestion() {
   var userId = localStorage.getItem('ui');
+  var questionId = 0;
   try {
     const response = await fetch(
       'http://localhost:61842/api/questions?userId='+userId,
@@ -96,11 +95,11 @@ async function retrieveQuestion() {
   updateExistingUser();
 }
 
-//detect if window is closing to delete user information
-window.onunload = deleteUserInformation();
+async function InitializeUsers(){
+  await createNewUser();
+}
 
-//when session is initialized, create new user
-oninit: createNewUser();
-{
-  isloaded = true;
+window.onbeforeunload = async function(){
+  await deleteUserInformation();
+  return null;
 }
