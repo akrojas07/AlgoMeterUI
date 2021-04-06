@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,26 +13,31 @@
         <link rel="stylesheet" href="./style.css">
     </head>
 </head>
-<body class="container">
-<div class="mt-5">
-    <h1 class="text-center display-1">AlgoMeter</h1>
-    <p class="text-center display-6">Test your algorithm knowledge with randomized questions</p>
 
-    <article class="lead card p-3 m-5">
-        <p id="question"> </p>
-        <section id="example"> </section>
-    </article>
+<body class="container" onload="InitializeUsers()">
+    <div class="mt-5">
+        <h1 class="text-center display-1">AlgoMeter</h1>
+        <p class="text-center display-6">Test your algorithm knowledge with randomized questions</p>
 
-    <div class="text-center mt-5">
-        <button type="button" class="btn btn-success" onclick="retrieveQuestion()">Randomize</button>
+        <article class="card p-3 m-5">
+            <p class = "lead">Question:</p><p id="question"> </p>
+            <section id="example">
+                <p class = "lead">Input:</p><p id ="input"></p>
+                <p class = "lead">Output:</p><p id = "output"></p>
+            </section>
+        </article>
+
+        <div class="text-center mt-5">
+            <button type="button" class="btn btn-success" onclick="retrieveQuestion()">Randomize</button>
+        </div>
+
     </div>
 
-</div>
-    
 
 
 
 
-<script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
+
 </html>

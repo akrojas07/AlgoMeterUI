@@ -1,113 +1,105 @@
-class User
-{
-    constructor(id, questions = [])
-    {
-        this.id = id;
-        this.questions = questions;
-    }
-}
-/*  User methods    */
-//create new instance of user class
-let user = new User();
+var user = { questionIds : [], userId: undefined };
 
 /// method to create a new user
 /// AlgoMeter will automatically assign the user an id when website is opened
 /// sends empty body
 /// returns userId
-async function createNewUser()
-{
-    const response = await fetch('http://localhost:61842/algometer/user/add',
-    {
-         method: 'POST',
-         mode: 'no-cors',
-         headers: 
-         {
-            'Content-Type': 'application/json'
-         },
-         body: JSON.stringify()
+async function createNewUser() {
+  try {
+    let response = await fetch('http://localhost:61842/api/user', {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+      }
     });
+    //set user information
+    let userObject = await response.json(); 
+    localStorage.setItem('ui', userObject['userId']);
+    this.user.userId = userObject['userId'];
+  } catch (error) {
+    console.log(error);
+  }
 
-    // set user info 
-    var userObj = response.json();
-    user.id = userObj['id'];
-
+  //retrieve question
+  retrieveQuestion();
 }
 
 /// method to update an existing user's list of questions
-/// returns list of questions already seen by the user
-async function updateExistingUser()
-{
-    const response = await fetch('http://localhost:61842/algometer/user/update',
-    {
-         method: 'PUT',
-         mode: 'no-cors',
-         headers: 
-         {
-            'Content-Type': 'application/json'
-         },
-         body: JSON.stringify(user)
+async function updateExistingUser() {
+  try {
+    await fetch('http://localhost:61842/api/user', {
+      method: 'PUT',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(this.user)
     });
-
-    var existingUserObj = response.json();
-
-    //update user question list info
-    user.questions = existingUserObj['questionids'];
-
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 ///method to delete user information once user's session has ended
-async function deleteUserInformation()
-{
-    const response = await fetch('http://localhost:61842/algometer/user/delete',
-    {
-         method: 'DELETE',
-         mode: 'cors',
-         headers: 
-         {
-            'Content-Type': 'application/json'
-         },
-         body: JSON.stringify(user)
-    });
+async function deleteUserInformation() {
+  try {
+    await fetch('http://localhost:61842/api/user',
+      {
+        method: 'DELETE',
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(this.user)
+      });
+
+    localStorage.clear();
+    this.user = { questionIds : [], userId: undefined };
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 /*  Question methods */
-let questionId = 0;
-
 ///method to retrieve question information from server
-//returns question object 
-async function retrieveQuestion()
-{
-    const response = await fetch('http://localhost:61842/algometer/question',
-    {
-         method: 'GET',
-         mode: 'no-cors',
-         headers: 
-         {
-            'Accept': 'application/json'
-         }
-    });
+//returns question object
+async function retrieveQuestion() {
+  var userId = localStorage.getItem('ui');
+  var questionId = 0;
+  try {
+    const response = await fetch(
+      'http://localhost:61842/api/questions?userId='+userId,
+      {
+        method: 'GET',
+        mode: 'cors',
+        headers: {
+          'Accept': 'application/json'
+        }
+      }
+    );
 
-    var questionObj = response.json();
+    var questionObj = await response.json();
     document.getElementById('question').innerHTML = questionObj['question'];
-    document.getElementById('example').innerHTML = questionObj['examples'];
-    questionId = questionObj['questionid'];
+    document.getElementById('input').innerHTML = questionObj['input'];
+    document.getElementById('output').innerHTML = questionObj['output'];
+    questionId = questionObj['questionId'];
+  } catch (error) {
+    console.log(error);
+  }
 
-    //add question to user list 
-    if(questionId !== 0)
-    {
-        user.questions.push(questionId);
-    }
+  //add question to user list
+  if (questionId !== 0) {
+    this.user.questionIds.push(questionId);
+  }
+  updateExistingUser();
 }
 
+async function InitializeUsers(){
+  await createNewUser();
+}
 
-//detect if window is closing to delete user information
-window.addEventListener('beforeunload', function(e)
-{
-    deleteUserInformation();
-});
-
-//when session is initialized, create new user
-oninit: createNewUser()
-{
-    isloaded = true;
+window.onbeforeunload = async function(){
+  await deleteUserInformation();
+  return null;
 }
