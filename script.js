@@ -1,12 +1,15 @@
 var user = { questionIds : [], userId: undefined };
 
+//global url
+var url = 'http://algometer.azurewebsites.net/api/';
+
 /// method to create a new user
 /// AlgoMeter will automatically assign the user an id when website is opened
 /// sends empty body
 /// returns userId
 async function createNewUser() {
   try {
-    let response = await fetch('http://localhost:61842/api/user', {
+    let response = await fetch(url + 'user', {
       method: 'POST',
       mode: 'cors',
       headers: {
@@ -28,7 +31,7 @@ async function createNewUser() {
 /// method to update an existing user's list of questions
 async function updateExistingUser() {
   try {
-    await fetch('http://localhost:61842/api/user', {
+    await fetch(url + 'user', {
       method: 'PUT',
       mode: 'cors',
       headers: {
@@ -44,7 +47,7 @@ async function updateExistingUser() {
 ///method to delete user information once user's session has ended
 async function deleteUserInformation() {
   try {
-    await fetch('http://localhost:61842/api/user',
+    await fetch(url + 'user',
       {
         method: 'DELETE',
         mode: 'cors',
@@ -69,7 +72,7 @@ async function retrieveQuestion() {
   var questionId = 0;
   try {
     const response = await fetch(
-      'http://localhost:61842/api/questions?userId='+userId,
+      url + 'questions?userId=' + userId,
       {
         method: 'GET',
         mode: 'cors',
